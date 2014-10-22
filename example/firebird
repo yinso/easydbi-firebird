@@ -1,0 +1,112 @@
+#!/usr/bin/env coffee # -*- coffee-script -*- -p
+
+firebird = require 'firebird'
+path = require 'path'
+fs = require 'fs'
+sys = require 'sys'
+fb = require 'node-firebird'
+P = require './src/promise'
+
+fireBirdSync = () ->
+
+  conn = firebird.createConnection()
+
+  # nothing. no passowrd database, etc. 
+  conn.connectSync path.join(__dirname, 'testfb'), '', '', ''
+  console.log 'connected'
+  res = conn.querySync 'select * from test_t'
+  #conn.commitSync() 
+  console.log 'queried'
+  rows = res.fetchSync 'all', true
+  console.log 'fetched'
+  console.log sys.inspect(rows)
+
+stop = (err) ->
+  console.error err
+  console.error err.stack
+  process.exit()
+
+
+fireBirdAsync = () ->
+  conn = firebird.createConnection() 
+  conn.connect path.join(__dirname, 'testfb'), '', '', '', (err) ->
+    if err
+      stop err
+    conn.query 'select * from test_t', (err, res) ->
+      if err
+        stop err
+      rows = []
+      res.fetch 'all', true, ((row) -> rows.push(row)), (err, eof) ->
+        if err
+          stop err
+        else
+          console.log 'fetched', rows
+
+fireBirdAsync2 = () ->
+  conn = firebird.createConnection() 
+  P.make()
+    .then (cb) ->
+      console.log 'connect', conn
+      conn.connect path.join(__dirname, 'testfb'), '', '', '', (err) ->
+        if err
+          cb err
+        else
+          console.log 'connected', conn
+          cb null
+    .then (cb) ->
+      console.log 'conn', conn
+      conn.query 'select * from test_t', (err, res) ->
+        if err
+          cb err
+        else
+          rows = []
+          res.fetch 'all', true, ((row) -> rows.push(row)), (err, eof) ->
+            if err
+              cb err
+            else
+              cb null, rows
+    .then (rows, cb) ->
+      console.log 'rows', rows
+      cb null
+    .then (cb) ->
+      query = conn.prepareSync 'select * from test_t where c2 = ? or c2 = ? or c2 = ?'
+      query.on 'error', (err) -> cb err
+      query.on 'result', () ->
+        console.log 'hasResult'
+      query.exec(2, 3, 4)
+      rows = []
+      query.fetch 'all', true, ((row) -> rows.push(row)), (err, eof) ->
+        if err
+          cb err
+        else
+          cb null, rows
+    .then (rows, cb) ->
+      console.log 'prepare', rows
+      cb null
+    .catch (err) ->
+      conn.disconnect()
+      stop err
+    .done () ->
+      conn.disconnect()
+      console.log 'done'
+
+nodeFireBirdTest = () ->
+  options = 
+    database: path.join(__dirname, 'testfb')
+    host: '127.0.0.1'
+    user: ''
+    password: ''
+  fb.attach options, (err, conn) ->
+    if err
+      stop err
+    conn.query 'select * from test_t', (err, res) ->
+      if err 
+        stop err
+      else
+        console.log res
+        conn.detch() 
+ 
+fireBirdAsync2()
+  
+  
+#nodeFireBirdTest() 
