@@ -13,7 +13,7 @@ scripts:
   test: 'make test'
   prepublish: 'make'
 dependencies:
-  easydbi: >=0.1.1
+  easydbi: '>=0.1.1'
   coffee-script: =1.8.0
   underscore: =1.7.0
   node-uuid: =1.4.1
