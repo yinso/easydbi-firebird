@@ -1,6 +1,7 @@
 
 firebird = require 'firebird'
 DBI = require 'easydbi'
+loglet = require 'loglet'
 
 class FireBirdDriver extends DBI.Driver
   @pool = false
@@ -11,21 +12,21 @@ class FireBirdDriver extends DBI.Driver
   makeConnStr: (options) ->
     options
   connect: (cb) ->
-    #console.log "FireBirdDriver.connect", @options
+    loglet.debug "FireBirdDriver.connect", @options
     self = @
     @inner = firebird.createConnection()
     @inner.connect @options.filePath, @options.userName or '', @options.password or '', @options.role or '', (err) ->
       if err
         cb err
       else
-        #console.log "FireBirdDriver.connect:OK", self.id
+        loglet.debug "FireBirdDriver.connect:OK", self.id
         cb null, self
   isConnected: () ->
     val = @inner instanceof firebird.binding.Connection
-    #console.log "FireBirdDriver.isConnected", @inner instanceof firebird.binding.Connection
+    loglet.debug "FireBirdDriver.isConnected", @inner instanceof firebird.binding.Connection
     val
   query: (key, args, cb) ->
-    #console.log "FireBirdDriver.query", key, args, cb
+    loglet.debug "FireBirdDriver.query", key, args, cb
     try 
       [ key, args ] = DBI.queryHelper.arrayify key, args
       @_query key, args, cb
@@ -45,7 +46,7 @@ class FireBirdDriver extends DBI.Driver
     else
       cb null
   exec: (key, args, cb) ->
-    #console.log "FireBirdDriver.exec", key, args
+    loglet.debug "FireBirdDriver.exec", key, args
     if key == 'begin'
       @begin cb
     else if key == 'commit'
@@ -63,12 +64,12 @@ class FireBirdDriver extends DBI.Driver
 #    @inner.begin cb 
   commit: (cb) ->
     @inner.commit (err) ->
-      #console.log 'Firebird.commit', err, cb
+      loglet.debug 'Firebird.commit', err, cb
       cb err
   rollback: (cb) ->
 #    cb null
     @inner.rollback (err) ->
-      #console.log 'Firebird.rollback', err, cb
+      loglet.debug 'Firebird.rollback', err, cb
       cb err
   disconnect: (cb) ->
     try 

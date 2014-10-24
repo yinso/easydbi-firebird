@@ -6,6 +6,7 @@ assert = require 'assert'
 async = require 'async'
 path = require 'path'
 fs = require 'fs'
+loglet = require 'loglet'
 
 describe 'sqlite driver test', () ->
   
@@ -45,7 +46,7 @@ describe 'sqlite driver test', () ->
   it 'can create/insert/select', (done) ->
     P.make()
       .then (cb) ->
-        #console.log 'isConnected', db.isConnected()
+        loglet.debug 'isConnected', db.isConnected()
         db.exec 'insert into test_t values ($c1, $c2)', {c1: 1, c2: 2}, cb
       .then (cb) ->
         db.insertTest {c1: 3, c2: 4}, cb
@@ -81,15 +82,15 @@ describe 'sqlite driver test', () ->
           conn.commit cb
         .catch (err) ->
           conn.disconnect (e) ->
-            #console.log 'conn.disconnect'
+            loglet.debug 'conn.disconnect'
             next e
         .done () ->
           conn.disconnect (e) -> 
-            #console.log 'conn.disconnect'
+            loglet.debug 'conn.disconnect'
             next e
     list = [1, 2, 3, 4, 5, 6, 7]
     async.each list, helper, (err) ->
-      #console.log 'async.last', err
+      loglet.debug 'async.last', err
       if err
         done err
       else

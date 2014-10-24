@@ -21,10 +21,11 @@
     "underscore": "=1.7.0",
     "node-uuid": "=1.4.1",
     "async": "=0.9.0",
-    "firebird": ">=0.0.10"
+    "firebird": ">=0.0.10",
+    "loglet": ">=0.1.0"
   },
   "devDependencies": {
     "testlet": ">= 0.2.0",
-    "coffee-bean": "=0.3.0"
+    "coffee-bean": ">=0.3.0"
   }
 }
