@@ -6,9 +6,10 @@ loglet = require 'loglet'
 class FireBirdDriver extends DBI.Driver
   @pool = false
   @id = 0
-  constructor: (@options) ->
-    super @options
+  constructor: (@key, @options) ->
+    super @key, @options
     @connstr = @makeConnStr @options
+    @type = 'firebird'
   makeConnStr: (options) ->
     options
   connect: (cb) ->
